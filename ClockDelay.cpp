@@ -247,7 +247,8 @@ DividingCounter divcounter;
 class DelayController {
 public:
   void update(uint16_t value){
-    value = (value>>1)+1; // divide by 2, add 1
+//     value = (value>>1)+1; // divide by 2, add 1
+    value = value+1;
     delay.value = value;
     swinger.value = value;
   }
@@ -338,9 +339,9 @@ void setup(){
   // enable timer 0 overflow interrupt
   TIMSK0 |= _BV(TOIE0);
 
-  dividerControl.range = 16;
+  dividerControl.range = 32;
   dividerControl.value = -1;
-  counterControl.range = 16;
+  counterControl.range = 32;
   counterControl.value = -1;
 
   setup_adc();

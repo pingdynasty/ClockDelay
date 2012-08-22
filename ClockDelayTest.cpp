@@ -1,5 +1,5 @@
 /*
-g++ -I../../Libraries/wiring -I../../Libraries/avrsim -I/opt/local/include -L/opt/local/lib -o ClockDelayTest -lboost_unit_test_framework  ClockDelayTest.cpp ../../Libraries/avrsim/avr/io.c ../../Libraries/wiring/serial.c adc_freerunner.cpp ../../Libraries/avrsim/avr/interrupt.c && ./ClockDelayTest
+g++ -I../RebelTechnology/Libraries/wiring -I../RebelTechnology/Libraries/avrsim -I/opt/local/include -L/opt/local/lib -o ClockDelayTest -lboost_unit_test_framework  ClockDelayTest.cpp ../RebelTechnology/Libraries/avrsim/avr/io.c ../RebelTechnology/Libraries/wiring/serial.c adc_freerunner.cpp ../RebelTechnology/Libraries/avrsim/avr/interrupt.c && ./ClockDelayTest
 */
 // #define mcu atmega168
 #define BOOST_TEST_DYN_LINK
@@ -116,26 +116,26 @@ BOOST_AUTO_TEST_CASE(testDivideControlRange){
   DefaultFixture fixture;
   setDivide(0.0);
   loop();
-  BOOST_CHECK_EQUAL(divider.value, 0);
+  BOOST_CHECK_EQUAL((int)divider.value, 0);
   setDivide(1.0);
   loop();
-  BOOST_CHECK_EQUAL(divider.value, 15);
+  BOOST_CHECK_EQUAL((int)divider.value, 31);
   setDivide(0.5);
   loop();
-  BOOST_CHECK_EQUAL(divider.value, 7);
+  BOOST_CHECK_EQUAL((int)divider.value, 15);
 }
 
 BOOST_AUTO_TEST_CASE(testCounterControlRange){
   DefaultFixture fixture;
   setDelay(0.0);
   loop();
-  BOOST_CHECK_EQUAL(counter.value, 0);
+  BOOST_CHECK_EQUAL((int)counter.value, 0);
   setDelay(1.0);
   loop();
-  BOOST_CHECK_EQUAL(counter.value, 15);
+  BOOST_CHECK_EQUAL((int)counter.value, 31);
   setDelay(0.5);
   loop();
-  BOOST_CHECK_EQUAL(counter.value, 7);
+  BOOST_CHECK_EQUAL((int)counter.value, 15);
 }
 
 BOOST_AUTO_TEST_CASE(testDelayControlRange){
@@ -145,10 +145,10 @@ BOOST_AUTO_TEST_CASE(testDelayControlRange){
   BOOST_CHECK_EQUAL(delay.value, 1);
   setDelay(1.0);
   loop();
-  BOOST_CHECK_EQUAL(delay.value, 1024);
+  BOOST_CHECK_EQUAL(delay.value, 4092);
   setDelay(0.5);
   loop();
-  BOOST_CHECK_EQUAL(delay.value, 512);
+  BOOST_CHECK_EQUAL(delay.value, 2046);
 }
 
 BOOST_AUTO_TEST_CASE(testModes){
@@ -179,8 +179,8 @@ BOOST_AUTO_TEST_CASE(testClock){
 
 BOOST_AUTO_TEST_CASE(testDivide){
   DefaultFixture fixture;
-  setDivide(0.5);
-  setDelay(0.5);
+  setDivide(0.25);
+  setDelay(0.25);
   setCountMode();
   loop();
   BOOST_CHECK_EQUAL(divider.value, 7);
@@ -237,8 +237,8 @@ BOOST_AUTO_TEST_CASE(testDivideByOne){
 
 BOOST_AUTO_TEST_CASE(testCount){
   DefaultFixture fixture;
-  setDivide(0.5);
-  setDelay(0.5);
+  setDivide(0.25);
+  setDelay(0.25);
   setCountMode();
   loop();
   BOOST_CHECK_EQUAL(counter.value, 7);
@@ -303,11 +303,11 @@ BOOST_AUTO_TEST_CASE(testCountToAny){
 
 BOOST_AUTO_TEST_CASE(testDelayLongPulse){
   DefaultFixture fixture;
-  setDivide(0.5);
-  setDelay(0.5);
+  setDivide(0.125);
+  setDelay(0.125);
   setDelayMode();
   loop();
-  BOOST_CHECK_EQUAL(delay.value, 512);
+  BOOST_CHECK_EQUAL(delay.value, 513);
   BOOST_CHECK(!delayIsHigh());
   BOOST_CHECK_EQUAL(mode, DELAY_MODE);
   callTimer(100);
@@ -316,36 +316,36 @@ BOOST_AUTO_TEST_CASE(testDelayLongPulse){
   setClock(true);
   for(i=0; !delayIsHigh() && i<1000; ++i)
     callTimer();
-  BOOST_CHECK_EQUAL(i, 512);
+  BOOST_CHECK_EQUAL(i, 513);
   setClock(false);
   for(i=0; delayIsHigh() && i<1000; ++i)
     callTimer();
-  BOOST_CHECK_EQUAL(i, 512);
+  BOOST_CHECK_EQUAL(i, 513);
 }
 
 BOOST_AUTO_TEST_CASE(testDelaySlowPulse){
   DefaultFixture fixture;
-  setDivide(0.5);
-  setDelay(0.5);
+  setDivide(0.125);
+  setDelay(0.125);
   setDelayMode();
   loop();
   int i;
   setClock(true);
   for(i=0; !delayIsHigh() && i<1000; ++i)
     callTimer();
-  BOOST_CHECK_EQUAL(i, 512);
+  BOOST_CHECK_EQUAL(i, 513);
   for(i=0; delayIsHigh() && i<1000; ++i)
     callTimer();
   BOOST_CHECK_EQUAL(i, 1000);
   setClock(false);
   for(i=0; delayIsHigh() && i<1000; ++i)
     callTimer();
-  BOOST_CHECK_EQUAL(i, 512);
+  BOOST_CHECK_EQUAL(i, 513);
 }
 
 BOOST_AUTO_TEST_CASE(testDelayRetrigger){
   DefaultFixture fixture;
-  setDivide(0.5);
+  setDivide(0.25);
   setDelay(0.1);
   setDelayMode();
   loop();
@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE(testZeroDelay){
 
 BOOST_AUTO_TEST_CASE(testZeroSwing){
   DefaultFixture fixture;
-  setDivide(0.5);
+  setDivide(0.25);
   setDelay(0.0);
   setDelayMode();
   loop();
@@ -429,7 +429,7 @@ BOOST_AUTO_TEST_CASE(testZeroSwing){
 BOOST_AUTO_TEST_CASE(testDelayShortPulse){
   DefaultFixture fixture;
   setDivide(0.5);
-  setDelay(0.2);
+  setDelay(0.05);
   setDelayMode();
   loop();
   BOOST_CHECK_EQUAL(delay.value, 205);

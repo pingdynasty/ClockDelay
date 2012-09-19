@@ -257,6 +257,7 @@ public:
 class CounterController : public DiscreteController {
 public:
   void hasChanged(int8_t v){
+    v = (v == 32) ? 31 : v;
     counter.value = v;
     divcounter.value = v;
   }
@@ -265,6 +266,7 @@ public:
 class DividerController : public DiscreteController {
 public:
   void hasChanged(int8_t v){
+    v = (v == 32) ? 31 : v;
     divider.value = v;
   }
 };
@@ -339,9 +341,9 @@ void setup(){
   // enable timer 0 overflow interrupt
   TIMSK0 |= _BV(TOIE0);
 
-  dividerControl.range = 32;
+  dividerControl.range = 33;
   dividerControl.value = -1;
-  counterControl.range = 32;
+  counterControl.range = 33;
   counterControl.value = -1;
 
   setup_adc();

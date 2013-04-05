@@ -1,10 +1,15 @@
-/*
-  pin mappings
- */
+
+#define ADC_CHANNELS                    2
+#define ADC_OVERSAMPLING                4
+#define ADC_VALUE_RANGE                 (1024*ADC_OVERSAMPLING)
+#define CLOCKDELAY_DEADBAND_THRESHOLD  (ADC_VALUE_RANGE/32/4)
 
 #define DIVIDE_ADC_CHANNEL              0
 #define DELAY_ADC_CHANNEL               1
 
+/*
+  pin mappings
+ */
 #define MODE_SWITCH_DDR                 DDRD
 #define MODE_SWITCH_PINS                PIND
 #define MODE_SWITCH_PORT                PORTD

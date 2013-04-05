@@ -1,4 +1,4 @@
-//#define SERIAL_DEBUG
+#define SERIAL_DEBUG
 #ifdef SERIAL_DEBUG
 #include "serial.h"
 #endif // SERIAL_DEBUG
@@ -8,7 +8,8 @@
 #include <avr/interrupt.h>
 #include "device.h"
 #include "adc_freerunner.h"
-#include "DiscreteController.h"
+// #include "DiscreteController.h"
+#include "DeadbandController.h"
 
 inline bool clockIsHigh(){
   return !(CLOCKDELAY_CLOCK_PINS & _BV(CLOCKDELAY_CLOCK_PIN));
@@ -98,7 +99,7 @@ public:
   }
 public:
   uint8_t pos;
-  uint8_t value;
+  int8_t value;
   bool toggled;
   inline bool isOff(){
     return DIVIDE_OUTPUT_PINS & _BV(DIVIDE_OUTPUT_PIN);
@@ -110,7 +111,7 @@ public:
     }
   }
   void fall(){
-    if(value == 0)
+    if(value == -1)
       off();
   }
   void toggle(){
@@ -254,19 +255,22 @@ public:
   }
 };
 
-class CounterController : public DiscreteController {
+class CounterController : public DeadbandController<CLOCKDELAY_DEADBAND_THRESHOLD> {
 public:
-  void hasChanged(int8_t v){
-    v = (v == 32) ? 31 : v;
+  void hasChanged(uint16_t v){
+    v >>= 7; // scale 0-4095 down to 0-31
     counter.value = v;
     divcounter.value = v;
   }
 };
 
-class DividerController : public DiscreteController {
+class DividerController : public DeadbandController<CLOCKDELAY_DEADBAND_THRESHOLD> {
 public:
-  void hasChanged(int8_t v){
-    v = (v == 32) ? 31 : v;
+  void hasChanged(uint16_t v){
+    if(v < (ADC_VALUE_RANGE/32/2))
+      v = -1;
+    else
+      v >>= 7; // scale 0-4095 down to 0-31
     divider.value = v;
   }
 };
@@ -341,9 +345,9 @@ void setup(){
   // enable timer 0 overflow interrupt
   TIMSK0 |= _BV(TOIE0);
 
-  dividerControl.range = 33;
+//   dividerControl.range = 33;
   dividerControl.value = -1;
-  counterControl.range = 33;
+//   counterControl.range = 33;
   counterControl.value = -1;
 
   setup_adc();

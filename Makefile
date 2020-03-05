@@ -2,14 +2,14 @@ TARGET = ClockDelay
 # INSTALL_DIR = /Users/mars/arduino/arduino-0013
 # INSTALL_DIR = /Applications/Arduino.app/Contents/Resources/Java/
 INSTALL_DIR = /usr/share/arduino/
-# PORT = /dev/tty.usb*
-PORT = /dev/ttyUSB*
+PORT ?= usb
+PORT ?= /dev/ttyUSB*
 AVRDUDE_PROGRAMMER = stk500v1
 F_CPU = 16000000
-# MCU = atmega328p
-# UPLOAD_RATE = 57600
-MCU = atmega168
-UPLOAD_RATE = 19200
+MCU = atmega328
+UPLOAD_RATE = 57600
+# MCU = atmega168
+# UPLOAD_RATE = 19200
 
 ARDUINO = $(INSTALL_DIR)/hardware/cores/arduino
 
@@ -104,6 +104,22 @@ sym: build/$(TARGET).sym
 upload: build/$(TARGET).hex
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
 
+flash:
+	$(AVRDUDE) -p $(MCU) -P $(PORT) -c avrispv2 -e -U flash:w:build/$(TARGET).hex
+
+# # atmega328p
+EFUSE = FD
+HFUSE = DA
+LFUSE = FF
+
+# atmega168
+# EFUSE = F8
+# HFUSE = DD
+# LFUSE = FF
+
+fuses:
+	$(AVRDUDE) -p $(MCU) -P $(PORT) -c avrispv2 -u -U efuse:w:0x$(EFUSE):m -U hfuse:w:0x$(HFUSE):m -U lfuse:w:0x$(LFUSE):m
+
 # Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) build/$(TARGET).hex
 ELFSIZE = $(SIZE)  build/$(TARGET).elf
@@ -192,5 +208,5 @@ depend:
 		>> $(MAKEFILE); \
 	$(CC) -M -mmcu=$(MCU) $(CDEFS) $(CINCS) $(SRC) $(ASRC) >> $(MAKEFILE)
 
-.PHONY:	all compile elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter
+.PHONY:	all compile elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter flash
 # DO NOT DELETE THIS LINE -- make depend depends on it.
